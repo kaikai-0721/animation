@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>追番记录</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #3d2be2;
+            --primary-dark: #1f105e;
+            --secondary: #6bffee;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border-radius: 10px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+        
+        .logo h1 {
+            font-size: 2.2rem;
+            color: var(--primary-dark);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-box input {
+            padding: 12px 15px 12px 45px;
+            border: 2px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            width: 280px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            color: var(--gray);
+        }
+        
+        .filter-select {
+            padding: 12px 15px;
+            border: 2px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            background: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--border-radius);
+            background: var(--primary);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn i {
+            font-size: 1.1rem;
+        }
+        
+        /* 番剧卡片容器 */
+        .anime-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .anime-card {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .anime-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            max-width: 70%;
+        }
+        
+        .card-status {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .season-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            color: var(--gray);
+        }
+        
+        .season-info i {
+            color: var(--primary);
+        }
+        
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+            max-height: 60px;
+            overflow-y: auto;
+        }
+        
+        .tag {
+            background: var(--light-gray);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--dark);
+        }
+        
+        .episode-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            width: 100%;
+            background: var(--light-gray);
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--secondary);
+            border-radius: 4px;
+        }
+        
+        /* 详情页样式 */
+        .detail-view {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .detail-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .anime-title {
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+        }
+        
+        .back-btn, .edit-anime-btn {
+            background: var(--light-gray);
+            color: var(--dark);
+            padding: 10px 12px;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+        
+        .back-btn:hover, .edit-anime-btn:hover {
+            background: #dcdcdc;
+        }
+        
+        .anime-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--light-gray);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .episodes-section {
+            margin-top: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .add-episode-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            margin-bottom: 20px;
+        }
+        
+        .add-episode-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        .episode-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .episode-card {
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .episode-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .episode-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #ddd;
+        }
+        
+        .episode-number {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .episode-comment {
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .final-comment {
+            background: rgba(138, 43, 226, 0.05);
+            border-left: 4px solid var(--primary);
+        }
+        
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: modalAppear 0.4s ease-out;
+        }
+        
+        @keyframes modalAppear {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 20px;
+            background: var(--primary);
+            color: white;
+            border-top-left-radius: var(--border-radius);
+            border-top-right-radius: var(--border-radius);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .modal-body {
+            padding: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .flex-group {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .flex-group .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .tag-input {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .tag-input input {
+            flex: 1;
+        }
+        
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .tag-item {
+            background: var(--light-gray);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .tag-remove {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0;
+            display: flex;
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .btn-secondary {
+            background: var(--light-gray);
+            color: var(--dark);
+        }
+        
+        .btn-secondary:hover {
+            background: #dcdcdc;
+        }
+        
+        /* 错误提示 */
+        .error-message {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .has-error .form-control {
+            border-color: #dc3545;
+        }
+        
+        .has-error .error-message {
+            display: block;
+        }
+        
+        /* 进度指示器 */
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .progress-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .delete-anime-btn {
+            background: #dc3545;
+            color: white;
+            padding: 10px 12px;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+
+        .delete-anime-btn:hover {
+            background: #c82333;
+        }
+        
+        .warning-box {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .warning-box i {
+            color: #ffc107;
+        }
+
+        /* 调整按钮间距 */
+        .controls {
+            gap: 10px;
+        }
+
+        /* 导入导出按钮样式 */
+        #import-btn, #export-btn {
+            background: #28a745;
+        }
+
+        #import-btn:hover, #export-btn:hover {
+            background: #218838;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .controls {
+                width: 100%;
+            }
+            
+            .search-box input {
+                width: 100%;
+            }
+            
+            .anime-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .detail-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 一级菜单：番剧列表 -->
+        <header>
+            <div class="logo">
+                <i class="fas fa-tv"></i>
+                <h1>追番记录系统</h1>
+            </div>
+            <div class="controls">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="搜索番剧名称...">
+                </div>
+                <select class="filter-select" id="season-filter">
+                    <option value="all">所有季度</option>
+                    <!-- 季度选项将通过JS动态添加 -->
+                </select>
+                <button class="btn" id="add-anime-btn">
+                    <i class="fas fa-plus"></i> 添加番剧
+                </button>
+                <button class="btn" id="export-btn">
+                    <i class="fas fa-file-export"></i> 导出数据
+                </button>
+                <button class="btn" id="import-btn">
+                    <i class="fas fa-file-import"></i> 导入数据
+                </button>
+            </div>
+        </header>
+        
+        <div class="anime-grid" id="anime-container">
+            <!-- 番剧卡片将通过JS动态添加 -->
+        </div>
+        
+        <!-- 二级菜单：番剧详情 -->
+         <div class="detail-view" id="detail-view">
+            <div class="detail-header">
+                <h2 class="anime-title" id="detail-title">进击的巨人 最终季</h2>
+                <div class="detail-actions">
+                    <button class="edit-anime-btn" id="edit-anime-btn">
+                        <i class="fas fa-edit"></i> 编辑番剧
+                    </button>
+                    <button class="delete-anime-btn" id="delete-anime-btn">
+                        <i class="fas fa-trash-alt"></i> 删除番剧
+                    </button>
+                    <button class="back-btn" id="back-btn">
+                        <i class="fas fa-arrow-left"></i> 返回列表
+                    </button>
+                </div>
+            </div>
+            
+            <div class="anime-meta">
+                <div class="meta-item">
+                    <i class="fas fa-calendar"></i>
+                    <span id="detail-season">2023年10月</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-tags"></i>
+                    <span id="detail-tags">热血, 战斗, 奇幻</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="detail-status">已完结</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-play-circle"></i>
+                    <span id="detail-progress">已观看 16 集</span>
+                </div>
+            </div>
+            
+            <div class="episodes-section">
+                <div class="section-title">
+                    <i class="fas fa-list"></i>
+                    <span>剧集列表</span>
+                </div>
+                <button class="add-episode-btn" id="add-episode-btn">
+                    <i class="fas fa-plus"></i> 添加剧集记录
+                </button>
+                
+                <div class="episode-list" id="episode-container">
+                    <!-- 剧集记录将通过JS动态添加 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 添加/编辑番剧模态框 -->
+        <div class="modal" id="anime-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="modal-title">添加新番剧</h3>
+                    <button class="close-btn" id="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group" id="name-group">
+                        <label for="anime-name">番剧名称</label>
+                        <input type="text" class="form-control" id="anime-name" placeholder="输入番剧名称">
+                        <div class="error-message">番剧名称不能为空</div>
+                    </div>
+                    
+                    <div class="flex-group">
+                        <div class="form-group" id="year-group">
+                            <label for="season-year">年份</label>
+                            <input type="number" class="form-control" id="season-year" min="2000" max="2100" value="2024">
+                            <div class="error-message">请输入有效的年份(2000-2100)</div>
+                        </div>
+                        <div class="form-group" id="month-group">
+                            <label for="season-month">季度</label>
+                            <select class="form-control" id="season-month">
+                                <option value="1">1月</option>
+                                <option value="4">4月</option>
+                                <option value="7">7月</option>
+                                <option value="10">10月</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" id="tags-group">
+                        <label for="tag-input">标签</label>
+                        <div class="tag-input">
+                            <input type="text" class="form-control" id="tag-input" placeholder="输入标签">
+                            <button class="btn" id="add-tag-btn">添加</button>
+                        </div>
+                        <div class="tag-list" id="tags-container">
+                            <!-- 标签将通过JS动态添加 -->
+                        </div>
+                        <div class="error-message">至少添加一个标签</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>状态</label>
+                        <div style="display: flex; gap: 20px; margin-top: 10px;">
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" name="status" value="watching" checked> 追番中
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" name="status" value="finished"> 已完结
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="cancel-btn">取消</button>
+                    <button class="btn" id="save-anime-btn">保存</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 添加/编辑剧集模态框 -->
+        <div class="modal" id="episode-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="episode-modal-title">添加剧集记录</h3>
+                    <button class="close-btn" id="close-episode-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group" id="episode-number-group">
+                        <label for="episode-number">集数</label>
+                        <input type="number" class="form-control" id="episode-number" min="1" placeholder="输入集数">
+                        <div class="error-message">请输入有效的集数</div>
+                    </div>
+                    
+                    <div class="form-group" id="episode-comment-group">
+                        <label for="episode-comment">吐槽/评论</label>
+                        <textarea class="form-control" id="episode-comment" rows="4" placeholder="记录你的观后感..."></textarea>
+                        <div class="error-message">评论内容不能为空</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="final-comment"> 
+                            <span>添加为完结评论</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="cancel-episode-btn">取消</button>
+                    <button class="btn" id="save-episode-btn">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导入功能模态框 -->
+        <div class="modal" id="import-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">导入数据</h3>
+                    <button class="close-btn" id="close-import-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="import-file">选择备份文件</label>
+                        <input type="file" class="form-control" id="import-file" accept=".json">
+                        <div class="error-message" id="import-error">请选择有效的JSON备份文件</div>
+                    </div>
+                    <div class="warning-box">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>导入数据将覆盖当前所有记录！</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="cancel-import-btn">取消</button>
+                    <button class="btn" id="confirm-import-btn">确认导入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 数据存储键名
+        const STORAGE_KEY = 'animeTrackerData';
+        
+        // 当前选中的番剧ID和编辑的评论ID
+        let currentAnimeId = null;
+        let currentCommentId = null;
+        let animeData = [];
+        
+        // 生成唯一ID
+        function generateUniqueId(existingItems = []) {
+            let newId;
+            do {
+                newId = Date.now() + Math.floor(Math.random() * 1000);
+            } while (existingItems.some(item => item.id === newId));
+            return newId;
+        }
+        
+        // 规范化标签
+        function normalizeTag(tag) {
+            return tag.trim().slice(0, 20).replace(/[^\w\u4e00-\u9fa5]/g, '');
+        }
+        
+        // 验证剧集号是否重复
+        function validateEpisodeNumber(anime, episodeNumber, currentCommentId = null) {
+            return !anime.comments.some(
+                c => c.episode === episodeNumber && c.id !== currentCommentId
+            );
+        }
+        
+        // 初始化页面
+        function initPage() {
+            loadData();
+            renderSeasonFilterOptions();
+            renderAnimeList(animeData);
+            setupEventListeners();
+        }
+        
+        // 从本地存储加载数据
+        function loadData() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                try {
+                    const parsedData = JSON.parse(savedData);
+                    
+                    // 兼容新旧数据格式
+                    if (Array.isArray(parsedData)) {
+                        // 旧格式（直接是数组）
+                        animeData = parsedData;
+                    } else if (parsedData.animeData) {
+                        // 新格式（包含元数据的对象）
+                        animeData = parsedData.animeData;
+                    } else {
+                        throw new Error('无效的数据格式');
+                    }
+                    
+                    // 确保所有番剧有ID
+                    animeData.forEach(anime => {
+                        if (!anime.id) {
+                            anime.id = generateUniqueId(animeData);
+                        }
+                    });
+                    
+                    return;
+                } catch (error) {
+                    console.error('解析保存的数据失败:', error);
+                    // 继续使用默认数据
+                }
+            } else {
+                // 默认示例数据
+                animeData = [
+                    {
+                        id: generateUniqueId(),
+                        name: "进击的巨人 最终季",
+                        season: { year: 2023, month: 10 },
+                        tags: ["热血", "战斗", "奇幻"],
+                        status: "finished",
+                        comments: [
+                            { id: generateUniqueId(), episode: 1, comment: "开场就如此震撼，不愧是巨人！" },
+                            { id: generateUniqueId(), episode: 16, comment: "史诗级的完结，十年神作画上句号", final: true }
+                        ]
+                    },
+                    {
+                        id: generateUniqueId(),
+                        name: "葬送的芙莉莲",
+                        season: { year: 2023, month: 10 },
+                        tags: ["奇幻", "治愈", "冒险"],
+                        status: "watching",
+                        comments: [
+                            { id: generateUniqueId(), episode: 1, comment: "画风清新，音乐太棒了！" },
+                            { id: generateUniqueId(), episode: 10, comment: "勇者小队的故事太感人了" }
+                        ]
+                    },
+                    {
+                        id: generateUniqueId(),
+                        name: "鬼灭之刃 刀匠村篇",
+                        season: { year: 2023, month: 4 },
+                        tags: ["热血", "战斗", "冒险"],
+                        status: "finished",
+                        comments: [
+                            { id: generateUniqueId(), episode: 1, comment: "新篇章开始了，期待战斗场面！" },
+                            { id: generateUniqueId(), episode: 11, comment: "战斗场景太震撼了！" },
+                            { id: generateUniqueId(), episode: 12, comment: "完美结局，期待下一季！", final: true }
+                        ]
+                    },
+                    {
+                        id: generateUniqueId(),
+                        name: "咒术回战 第二季",
+                        season: { year: 2023, month: 7 },
+                        tags: ["热血", "超自然", "战斗"],
+                        status: "watching",
+                        comments: [
+                            { id: generateUniqueId(), episode: 1, comment: "新篇章开始了，五条悟年轻时候好帅！" },
+                            { id: generateUniqueId(), episode: 5, comment: "这一集的战斗场面太精彩了" }
+                        ]
+                    }
+                ];
+                saveData();
+            }
+        }
+        
+        // 保存数据到本地存储
+        let saveTimeout;
+        function saveData() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                try {
+                    const dataToSave = {
+                        version: '1.0',
+                        savedAt: new Date().toISOString(),
+                        animeData: animeData
+                    };
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+                } catch (error) {
+                    console.error('保存数据失败:', error);
+                }
+            }, 500);
+        }
+        
+        // 获取最大集数
+        function getMaxEpisode(comments) {
+            if (!comments || comments.length === 0) return 0;
+            return Math.max(...comments.map(c => c.episode));
+        }
+        
+        // 渲染季度筛选选项
+        function renderSeasonFilterOptions() {
+            const seasons = new Set();
+            
+            // 获取所有季度
+            animeData.forEach(anime => {
+                const seasonKey = `${anime.season.year}-${anime.season.month}`;
+                seasons.add(seasonKey);
+            });
+            
+            // 清空现有选项（保留"所有季度"选项）
+            const seasonFilter = document.getElementById('season-filter');
+            while (seasonFilter.options.length > 1) {
+                seasonFilter.remove(1);
+            }
+            
+            // 添加季度选项
+            const sortedSeasons = Array.from(seasons).sort((a, b) => {
+                const [yearA, monthA] = a.split('-').map(Number);
+                const [yearB, monthB] = b.split('-').map(Number);
+                return yearB - yearA || monthB - monthA;
+            });
+            
+            sortedSeasons.forEach(season => {
+                const [year, month] = season.split('-');
+                const option = document.createElement('option');
+                option.value = season;
+                option.textContent = `${year}年${month}月`;
+                seasonFilter.appendChild(option);
+            });
+        }
+        
+        // 创建番剧卡片
+        function createAnimeCard(anime) {
+            const maxEpisode = getMaxEpisode(anime.comments);
+            
+            const animeCard = document.createElement('div');
+            animeCard.className = 'anime-card';
+            animeCard.innerHTML = `
+                <div class="card-header">
+                    <div class="card-title">${anime.name}</div>
+                    <div class="card-status">${anime.status === 'finished' ? '已完结' : '追番中'}</div>
+                </div>
+                <div class="card-body">
+                    <div class="season-info">
+                        <i class="fas fa-calendar"></i>
+                        <span>${anime.season.year}年${anime.season.month}月番</span>
+                    </div>
+                    <div class="tags">
+                        ${anime.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                    <div class="episode-progress">
+                        <div class="progress-text">已观看 ${maxEpisode} 集</div>
+                    </div>
+                </div>
+            `;
+            
+            animeCard.addEventListener('click', () => showAnimeDetail(anime.id));
+            return animeCard;
+        }
+        
+        // 渲染番剧列表
+        function renderAnimeList(animes) {
+            const animeContainer = document.getElementById('anime-container');
+            animeContainer.innerHTML = '';
+            
+            if (animes.length === 0) {
+                animeContainer.innerHTML = '<div class="no-results" style="text-align:center; padding:40px; color:var(--gray)">没有找到匹配的番剧</div>';
+                return;
+            }
+            
+            animes.forEach(anime => {
+                animeContainer.appendChild(createAnimeCard(anime));
+            });
+        }
+        
+        // 显示番剧详情
+        function showAnimeDetail(id) {
+            const anime = animeData.find(a => a.id === id);
+            if (!anime) return;
+            
+            currentAnimeId = id;
+            
+            // 更新详情页信息
+            document.getElementById('detail-title').textContent = anime.name;
+            document.getElementById('detail-season').textContent = `${anime.season.year}年${anime.season.month}月`;
+            document.getElementById('detail-tags').textContent = anime.tags.join(', ');
+            document.getElementById('detail-status').textContent = anime.status === 'finished' ? '已完结' : '追番中';
+            document.getElementById('detail-progress').textContent = `已观看 ${getMaxEpisode(anime.comments)} 集`;
+            
+            // 渲染剧集评论
+            const episodeContainer = document.getElementById('episode-container');
+            episodeContainer.innerHTML = '';
+            
+            if (anime.comments && anime.comments.length > 0) {
+                // 按集数排序
+                const sortedComments = [...anime.comments].sort((a, b) => a.episode - b.episode);
+                
+                sortedComments.forEach(comment => {
+                    const episodeCard = document.createElement('div');
+                    episodeCard.className = `episode-card ${comment.final ? 'final-comment' : ''}`;
+                    episodeCard.dataset.commentId = comment.id;
+                    episodeCard.innerHTML = `
+                        <div class="episode-header">
+                            <div class="episode-number">${comment.final ? '完结评论' : `第${comment.episode}集`}</div>
+                        </div>
+                        <div class="episode-comment">${comment.comment}</div>
+                    `;
+                    episodeContainer.appendChild(episodeCard);
+                    
+                    // 添加点击事件用于编辑
+                    episodeCard.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('tag-remove')) return;
+                        openEditEpisodeModal(comment.id);
+                    });
+                });
+            } else {
+                episodeContainer.innerHTML = '<div class="no-results" style="text-align:center; padding:40px; color:var(--gray)">暂无剧集记录</div>';
+            }
+            
+            // 显示详情页，隐藏列表
+            document.querySelector('.anime-grid').style.display = 'none';
+            document.getElementById('detail-view').style.display = 'block';
+        }
+        
+        // 返回列表视图
+        function backToList() {
+            document.getElementById('detail-view').style.display = 'none';
+            document.querySelector('.anime-grid').style.display = 'grid';
+            currentAnimeId = null;
+            currentCommentId = null;
+        }
+        
+        // 搜索功能
+        function searchAnimes() {
+            const searchInput = document.getElementById('search-input');
+            const seasonFilter = document.getElementById('season-filter');
+            
+            const searchTerm = searchInput.value.toLowerCase();
+            const seasonValue = seasonFilter.value;
+            
+            let filtered = animeData;
+            
+            // 应用搜索词
+            if (searchTerm) {
+                filtered = filtered.filter(anime => 
+                    anime.name.toLowerCase().includes(searchTerm) || 
+                    anime.tags.some(tag => tag.toLowerCase().includes(searchTerm)) // 新增标签搜索
+                );
+            }
+            
+            // 应用季度筛选
+            if (seasonValue !== 'all') {
+                const [year, month] = seasonValue.split('-');
+                filtered = filtered.filter(anime => 
+                    anime.season.year === parseInt(year) && 
+                    anime.season.month === parseInt(month)
+                );
+            }
+            
+            renderAnimeList(filtered);
+        }        
+        
+        // 打开添加番剧模态框
+        function openAnimeModal(anime = null) {
+            // 重置表单
+            if (anime) {
+                // 编辑模式
+                document.getElementById('anime-name').value = anime.name;
+                document.getElementById('season-year').value = anime.season.year;
+                document.getElementById('season-month').value = anime.season.month;
+                document.querySelector(`input[name="status"][value="${anime.status}"]`).checked = true;
+                
+                // 添加标签
+                const tagsContainer = document.getElementById('tags-container');
+                tagsContainer.innerHTML = '';
+                anime.tags.forEach(tag => {
+                    const tagItem = document.createElement('div');
+                    tagItem.className = 'tag-item';
+                    tagItem.innerHTML = `
+                        ${tag}
+                        <button class="tag-remove">&times;</button>
+                    `;
+                    tagsContainer.appendChild(tagItem);
+                    
+                    // 添加删除标签的事件
+                    tagItem.querySelector('.tag-remove').addEventListener('click', () => {
+                        tagItem.remove();
+                    });
+                });
+                
+                document.getElementById('modal-title').textContent = '编辑番剧';
+            } else {
+                // 添加模式
+                document.getElementById('anime-name').value = '';
+                document.getElementById('season-year').value = new Date().getFullYear();
+                document.getElementById('season-month').value = '1';
+                document.querySelector('input[name="status"][value="watching"]').checked = true;
+                document.getElementById('tags-container').innerHTML = '';
+                document.getElementById('modal-title').textContent = '添加新番剧';
+            }
+            
+            // 移除错误状态
+            document.getElementById('name-group').classList.remove('has-error');
+            document.getElementById('year-group').classList.remove('has-error');
+            document.getElementById('tags-group').classList.remove('has-error');
+            
+            document.getElementById('anime-modal').style.display = 'flex';
+        }
+        
+        // 验证番剧表单
+        function validateAnimeForm() {
+            let isValid = true;
+            
+            // 验证番剧名称
+            const name = document.getElementById('anime-name').value.trim();
+            if (!name) {
+                document.getElementById('name-group').classList.add('has-error');
+                isValid = false;
+            } else {
+                document.getElementById('name-group').classList.remove('has-error');
+            }
+            
+            // 验证年份
+            const year = parseInt(document.getElementById('season-year').value);
+            if (isNaN(year) || year < 2000 || year > 2100) {
+                document.getElementById('year-group').classList.add('has-error');
+                isValid = false;
+            } else {
+                document.getElementById('year-group').classList.remove('has-error');
+            }
+            
+            // 验证标签
+            const tags = Array.from(document.querySelectorAll('#tags-container .tag-item')).map(tag => tag.textContent.trim());
+            if (tags.length === 0) {
+                document.getElementById('tags-group').classList.add('has-error');
+                isValid = false;
+            } else {
+                document.getElementById('tags-group').classList.remove('has-error');
+            }
+            
+            return isValid;
+        }
+        
+        // 保存番剧
+        function saveAnime() {
+            if (!validateAnimeForm()) return;
+            
+            const name = document.getElementById('anime-name').value.trim();
+            const year = parseInt(document.getElementById('season-year').value);
+            const month = parseInt(document.getElementById('season-month').value);
+            const status = document.querySelector('input[name="status"]:checked').value;
+            
+            // 获取标签
+            const tags = Array.from(document.querySelectorAll('#tags-container .tag-item')).map(tag => 
+                tag.textContent.trim()
+            );
+            
+            if (document.getElementById('modal-title').textContent === '添加新番剧') {
+                // 创建新番剧对象
+                const newAnime = {
+                    id: generateUniqueId(animeData),
+                    name,
+                    season: { year, month },
+                    tags,
+                    status,
+                    comments: []
+                };
+                
+                // 添加到数据数组
+                animeData.push(newAnime);
+            } else {
+                // 编辑现有番剧
+                const animeIndex = animeData.findIndex(a => a.id === currentAnimeId);
+                if (animeIndex !== -1) {
+                    animeData[animeIndex].name = name;
+                    animeData[animeIndex].season = { year, month };
+                    animeData[animeIndex].tags = tags;
+                    animeData[animeIndex].status = status;
+                }
+            }
+            
+            saveData();
+            
+            // 关闭模态框并刷新列表
+            document.getElementById('anime-modal').style.display = 'none';
+            renderAnimeList(animeData);
+            renderSeasonFilterOptions();
+            
+            // 如果是在详情页编辑，则刷新详情页
+            if (document.getElementById('detail-view').style.display === 'block' && currentAnimeId) {
+                showAnimeDetail(currentAnimeId);
+            }
+        }
+        
+        // 添加标签
+        function addTag() {
+            const tagInput = document.getElementById('tag-input');
+            const tagText = tagInput.value.trim();
+            
+            if (!tagText) return;
+            
+            const normalizedTag = normalizeTag(tagText);
+            if (!normalizedTag) {
+                alert("标签无效或过长！");
+                return;
+            }
+            
+            const tagsContainer = document.getElementById('tags-container');
+            
+            // 检查是否已存在相同标签
+            const existingTags = Array.from(tagsContainer.querySelectorAll('.tag-item')).map(tag => 
+                tag.textContent.trim()
+            );
+            
+            if (existingTags.includes(normalizedTag)) {
+                return;
+            }
+            
+            // 创建标签元素
+            const tagItem = document.createElement('div');
+            tagItem.className = 'tag-item';
+            tagItem.innerHTML = `
+                ${normalizedTag}
+                <button class="tag-remove">&times;</button>
+            `;
+            
+            tagsContainer.appendChild(tagItem);
+            tagInput.value = '';
+            
+            // 添加删除标签的事件
+            tagItem.querySelector('.tag-remove').addEventListener('click', () => {
+                tagItem.remove();
+            });
+        }
+        
+        // 打开编辑剧集模态框
+        function openEditEpisodeModal(commentId = null) {
+            const anime = animeData.find(a => a.id === currentAnimeId);
+            if (!anime) return;
+            
+            // 重置表单
+            document.getElementById('episode-number').value = '';
+            document.getElementById('episode-comment').value = '';
+            document.getElementById('final-comment').checked = false;
+            
+            if (commentId) {
+                // 编辑模式
+                const comment = anime.comments.find(c => c.id === commentId);
+                if (comment) {
+                    document.getElementById('episode-number').value = comment.episode;
+                    document.getElementById('episode-comment').value = comment.comment;
+                    document.getElementById('final-comment').checked = comment.final || false;
+                    currentCommentId = commentId;
+                    document.getElementById('episode-modal-title').textContent = '编辑剧集记录';
+                }
+            } else {
+                // 添加模式
+                currentCommentId = null;
+                document.getElementById('episode-modal-title').textContent = '添加剧集记录';
+            }
+            
+            // 移除错误状态
+            document.getElementById('episode-number-group').classList.remove('has-error');
+            document.getElementById('episode-comment-group').classList.remove('has-error');
+            
+            document.getElementById('episode-modal').style.display = 'flex';
+        }
+        
+        // 验证剧集表单
+        function validateEpisodeForm() {
+            let isValid = true;
+            
+            // 验证集数
+            const episodeNumber = parseInt(document.getElementById('episode-number').value);
+            if (isNaN(episodeNumber)) {
+                document.getElementById('episode-number-group').classList.add('has-error');
+                isValid = false;
+            } else {
+                document.getElementById('episode-number-group').classList.remove('has-error');
+            }
+            
+            // 验证评论
+            const comment = document.getElementById('episode-comment').value.trim();
+            if (!comment) {
+                document.getElementById('episode-comment-group').classList.add('has-error');
+                isValid = false;
+            } else {
+                document.getElementById('episode-comment-group').classList.remove('has-error');
+            }
+            
+            return isValid;
+        }
+        
+        // 保存剧集评论
+        function saveEpisode() {
+            if (!validateEpisodeForm()) return;
+            
+            const anime = animeData.find(a => a.id === currentAnimeId);
+            if (!anime) return;
+            
+            const episodeNumber = parseInt(document.getElementById('episode-number').value);
+            const comment = document.getElementById('episode-comment').value.trim();
+            const isFinalComment = document.getElementById('final-comment').checked;
+            
+            // 验证集数是否重复
+            if (!validateEpisodeNumber(anime, episodeNumber, currentCommentId)) {
+                alert("该集数已存在！");
+                return;
+            }
+            
+            if (!anime.comments) {
+                anime.comments = [];
+            }
+            
+            if (currentCommentId) {
+                // 编辑现有评论
+                const commentIndex = anime.comments.findIndex(c => c.id === currentCommentId);
+                if (commentIndex !== -1) {
+                    // 检查是否取消完结评论
+                    const wasFinal = anime.comments[commentIndex].final;
+                    if (wasFinal && !isFinalComment) {
+                        const hasOtherFinal = anime.comments.some(c => c.final && c.id !== currentCommentId);
+                        if (!hasOtherFinal) {
+                            anime.status = "watching";
+                        }
+                    }
+                    
+                    anime.comments[commentIndex] = {
+                        ...anime.comments[commentIndex],
+                        episode: episodeNumber,
+                        comment,
+                        final: isFinalComment
+                    };
+                }
+            } else {
+                // 创建新评论对象
+                const newComment = {
+                    id: generateUniqueId(anime.comments),
+                    episode: episodeNumber,
+                    comment,
+                    final: isFinalComment
+                };
+                
+                // 添加到番剧的评论数组
+                anime.comments.push(newComment);
+            }
+            
+            // 如果是完结评论，则更新状态
+            if (isFinalComment) {
+                anime.status = 'finished';
+            }
+            
+            // 保存数据并刷新详情页
+            saveData();
+            showAnimeDetail(currentAnimeId);
+            
+            // 关闭模态框
+            document.getElementById('episode-modal').style.display = 'none';
+            
+            // 重置表单
+            document.getElementById('episode-number').value = '';
+            document.getElementById('episode-comment').value = '';
+            document.getElementById('final-comment').checked = false;
+            currentCommentId = null;
+        }
+        
+        // 删除番剧
+        function deleteAnime() {
+            if (!currentAnimeId) return;
+            
+            // 二次确认
+            if (!confirm('确定要删除这个番剧及其所有剧集记录吗？此操作不可恢复！')) {
+                return;
+            }
+            
+            // 从数组中移除
+            animeData = animeData.filter(anime => anime.id !== currentAnimeId);
+            
+            // 保存数据
+            saveData();
+            
+            // 返回列表并刷新
+            backToList();
+            renderAnimeList(animeData);
+            renderSeasonFilterOptions();
+        }
+
+        // 导出数据
+        function exportData() {
+            try {
+                const data = {
+                    version: '1.0',
+                    exportedAt: new Date().toISOString(),
+                    animeData: animeData
+                };
+                
+                // 格式化日期为YYYY-MM-DD
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                const formattedDate = `${year}-${month}-${day}`;
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `追番记录-${formattedDate}.json`;  // 修改为中文文件名
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert('数据导出成功！');
+            } catch (error) {
+                console.error('导出失败:', error);
+                alert('导出失败，请重试或检查控制台');
+            }
+        }
+
+        // 导入数据
+        function importData() {
+            const fileInput = document.getElementById('import-file');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                document.getElementById('import-error').style.display = 'block';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // 验证数据格式
+                    if (!data.animeData || !Array.isArray(data.animeData)) {
+                        throw new Error('无效的数据格式');
+                    }
+                    
+                    // 二次确认
+                    if (!confirm(`确定要导入吗？这将覆盖现有的 ${animeData.length} 条番剧记录，并导入 ${data.animeData.length} 条新记录。`)) {
+                        return;
+                    }
+                    
+                    // 更新数据
+                    animeData = data.animeData;
+                    saveData();
+                    
+                    // 关闭模态框并刷新界面
+                    document.getElementById('import-modal').style.display = 'none';
+                    renderAnimeList(animeData);
+                    renderSeasonFilterOptions();
+                    
+                    // 如果当前在详情页，返回列表
+                    if (document.getElementById('detail-view').style.display === 'block') {
+                        backToList();
+                    }
+                    
+                    alert('数据导入成功！');
+                } catch (error) {
+                    console.error('导入失败:', error);
+                    document.getElementById('import-error').textContent = '文件解析失败，请检查文件格式';
+                    document.getElementById('import-error').style.display = 'block';
+                }
+            };
+            reader.onerror = () => {
+                document.getElementById('import-error').textContent = '文件读取失败';
+                document.getElementById('import-error').style.display = 'block';
+            };
+            reader.readAsText(file);
+        }
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 搜索和筛选
+            document.getElementById('search-input').addEventListener('input', searchAnimes);
+            document.getElementById('season-filter').addEventListener('change', searchAnimes);
+            
+            // 导航
+            document.getElementById('back-btn').addEventListener('click', backToList);
+            
+            // 添加番剧按钮
+            document.getElementById('add-anime-btn').addEventListener('click', () => openAnimeModal());
+            
+            // 编辑番剧按钮
+            document.getElementById('edit-anime-btn').addEventListener('click', () => {
+                const anime = animeData.find(a => a.id === currentAnimeId);
+                if (anime) {
+                    openAnimeModal(anime);
+                }    
+            });
+
+            // 导入导出按钮
+            document.getElementById('export-btn').addEventListener('click', exportData);
+            document.getElementById('import-btn').addEventListener('click', () => {
+                document.getElementById('import-modal').style.display = 'flex';
+                document.getElementById('import-error').style.display = 'none';
+            });
+
+            document.getElementById('close-import-modal').addEventListener('click', () => {
+                document.getElementById('import-modal').style.display = 'none';
+            });
+
+            document.getElementById('cancel-import-btn').addEventListener('click', () => {
+                document.getElementById('import-modal').style.display = 'none';
+            });
+
+            document.getElementById('confirm-import-btn').addEventListener('click', importData);
+
+            // 添加剧集按钮
+            document.getElementById('add-episode-btn').addEventListener('click', () => openEditEpisodeModal());
+            
+            // 关闭模态框按钮
+            document.getElementById('close-modal').addEventListener('click', () => {
+                document.getElementById('anime-modal').style.display = 'none';
+            });
+            
+            document.getElementById('close-episode-modal').addEventListener('click', () => {
+                document.getElementById('episode-modal').style.display = 'none';
+            });
+            
+            document.getElementById('cancel-btn').addEventListener('click', () => {
+                document.getElementById('anime-modal').style.display = 'none';
+            });
+            
+            document.getElementById('cancel-episode-btn').addEventListener('click', () => {
+                document.getElementById('episode-modal').style.display = 'none';
+            });
+            
+            // 保存按钮
+            document.getElementById('save-anime-btn').addEventListener('click', saveAnime);
+            document.getElementById('save-episode-btn').addEventListener('click', saveEpisode);
+            
+            // 添加标签按钮
+            document.getElementById('add-tag-btn').addEventListener('click', addTag);
+            
+            // 标签输入框回车添加标签
+            document.getElementById('tag-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addTag();
+                }
+            });
+            
+            // 点击模态框外部关闭
+            window.addEventListener('click', (e) => {
+                if (e.target === document.getElementById('anime-modal')) {
+                    document.getElementById('anime-modal').style.display = 'none';
+                }
+                if (e.target === document.getElementById('episode-modal')) {
+                    document.getElementById('episode-modal').style.display = 'none';
+                }
+                if (e.target === document.getElementById('import-modal')) {
+                    document.getElementById('import-modal').style.display = 'none';
+                }
+            });
+            
+            // 删除番剧按钮
+            document.getElementById('delete-anime-btn').addEventListener('click', deleteAnime);
+        }
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>
